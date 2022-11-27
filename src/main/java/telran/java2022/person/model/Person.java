@@ -18,6 +18,7 @@ import lombok.Setter;
 @Getter
 @EqualsAndHashCode(of = "id")
 @Entity
+//@Entity(name = "Person")
 @Table(name = "Persons")
 public class Person {
 	@Id
