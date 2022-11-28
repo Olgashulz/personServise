@@ -47,7 +47,7 @@ public class PersonServiseImpl implements PersonService, CommandLineRunner {
 	public PersonDto removePerson(Integer id) {
 		Person person = personRepositoty.findById(id).orElseThrow(PersonNotFoundExeption::new);
 		personRepositoty.deleteById(id);
-		return modelMapper.map(person, PersonDto.class);
+		return modelMapper.map(person, getModelDto(person));
 	}
 
 	@Override
@@ -57,7 +57,7 @@ public class PersonServiseImpl implements PersonService, CommandLineRunner {
 		person.setName(name);
 		// personRepositoty.save(person);// @Transactional: commit in a transaction does
 		// the job
-		return modelMapper.map(person, PersonDto.class);
+		return modelMapper.map(person, getModelDto(person));
 	}
 
 	@Override
@@ -67,7 +67,7 @@ public class PersonServiseImpl implements PersonService, CommandLineRunner {
 		Address address = modelMapper.map(addressDto, Address.class);
 		person.setAddress(address);
 		// personRepositoty.save(person);
-		return modelMapper.map(person, PersonDto.class);
+		return modelMapper.map(person, getModelDto(person));
 	}
 
 	@Override
