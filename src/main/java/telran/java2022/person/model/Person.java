@@ -1,10 +1,12 @@
 package telran.java2022.person.model;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
-import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.Table;
 
 import lombok.AllArgsConstructor;
@@ -20,7 +22,14 @@ import lombok.Setter;
 @Entity
 //@Entity(name = "Person")
 @Table(name = "Persons")
-public class Person {
+@Inheritance(strategy = InheritanceType.JOINED)
+public class Person implements Serializable {
+
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6589897511691176184L;
 	@Id
 	Integer id;
 	@Setter

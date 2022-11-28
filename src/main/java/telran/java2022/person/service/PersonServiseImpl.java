@@ -1,27 +1,31 @@
 package telran.java2022.person.service;
 
 import java.time.LocalDate;
-import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 
 import org.modelmapper.ModelMapper;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import telran.java2022.person.dao.PersonRepositoty;
 import telran.java2022.person.dto.AddressDto;
+import telran.java2022.person.dto.ChildDto;
 import telran.java2022.person.dto.CityPopulationDto;
+import telran.java2022.person.dto.EmployeeDto;
 import telran.java2022.person.dto.PersonDto;
 import telran.java2022.person.dto.PersonNotFoundExeption;
 import telran.java2022.person.model.Address;
+import telran.java2022.person.model.Child;
+import telran.java2022.person.model.Employee;
 import telran.java2022.person.model.Person;
 
 @Service
 @RequiredArgsConstructor
-public class PersonServiseImpl implements PersonService {
+public class PersonServiseImpl implements PersonService, CommandLineRunner{
+	
 	final PersonRepositoty personRepositoty;
 	final ModelMapper modelMapper;
 
@@ -31,9 +35,10 @@ public class PersonServiseImpl implements PersonService {
 		if (personRepositoty.existsById(personDto.getId())) {
 			return false;
 		}
-		personRepositoty.save(modelMapper.map(personDto, Person.class));
+		personRepositoty.save(modelMapper.map(personDto, getModelClass(personDto)));
 		return true;
 	}
+
 
 	@Override
 	public PersonDto findPersonById(Integer id) {
@@ -96,6 +101,27 @@ public class PersonServiseImpl implements PersonService {
 	@Transactional(readOnly = true)
 	public Iterable<CityPopulationDto> getCitiesPopulation() {
 		return personRepositoty.getCitiesPopulation();
+	}
+
+	@Override
+	public void run(String... args) throws Exception {
+		Person person = new Person(1000, "John", LocalDate.of(1985, 04, 11), new Address("Tel-Aviv", "Ben-Gurion", 11));
+		Child child = new Child(2000, "Moshe", LocalDate.of(2018, 7, 5), new Address("Ashkelon", "Bar-Kohba", 21), "Shalom");
+		Employee employee = new Employee(3000, "Sarah", LocalDate.of(1995, 11, 21), new Address("Rehovot", "Herzl", 7), "Motorolla", 20000);
+		
+		personRepositoty.save(person);
+		personRepositoty.save(child);
+		personRepositoty.save(employee);
+	}
+	
+	private Class<? extends Person> getModelClass(PersonDto personDto) {
+		if(personDto instanceof EmployeeDto) {
+			return Employee.class;
+		}
+		if(personDto instanceof ChildDto) {
+			return Child.class;
+		}
+		return Person.class;
 	}
 
 //	@Override
