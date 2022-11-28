@@ -22,10 +22,9 @@ import lombok.Setter;
 @Entity
 //@Entity(name = "Person")
 @Table(name = "Persons")
-@Inheritance(strategy = InheritanceType.JOINED)
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class Person implements Serializable {
 
-	
 	/**
 	 * 
 	 */

@@ -3,7 +3,6 @@ package telran.java2022.person.service;
 import java.time.LocalDate;
 import java.util.stream.Collectors;
 
-
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
@@ -12,9 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import telran.java2022.person.dao.PersonRepositoty;
 import telran.java2022.person.dto.AddressDto;
-import telran.java2022.person.dto.ChildDto;
 import telran.java2022.person.dto.CityPopulationDto;
-import telran.java2022.person.dto.EmployeeDto;
 import telran.java2022.person.dto.PersonDto;
 import telran.java2022.person.dto.PersonNotFoundExeption;
 import telran.java2022.person.model.Address;
@@ -24,8 +21,8 @@ import telran.java2022.person.model.Person;
 
 @Service
 @RequiredArgsConstructor
-public class PersonServiseImpl implements PersonService, CommandLineRunner{
-	
+public class PersonServiseImpl implements PersonService, CommandLineRunner {
+
 	final PersonRepositoty personRepositoty;
 	final ModelMapper modelMapper;
 
@@ -39,11 +36,10 @@ public class PersonServiseImpl implements PersonService, CommandLineRunner{
 		return true;
 	}
 
-
 	@Override
 	public PersonDto findPersonById(Integer id) {
 		Person person = personRepositoty.findById(id).orElseThrow(PersonNotFoundExeption::new);
-		return modelMapper.map(person, PersonDto.class);
+		return modelMapper.map(person, getModelDto(person));
 	}
 
 	@Override
@@ -104,25 +100,91 @@ public class PersonServiseImpl implements PersonService, CommandLineRunner{
 	}
 
 	@Override
+	@Transactional(readOnly = true)
+	public Iterable<PersonDto> findEmployeeBySalary(int min, int max) {
+		return personRepositoty.findEmployeeBySalary(min, max).map(p -> modelMapper.map(p, PersonDto.class))
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public Iterable<PersonDto> getChildren() {
+		return personRepositoty.findChildren().map(p -> modelMapper.map(p, PersonDto.class))
+				.collect(Collectors.toList());
+	}
+
+	@Override
 	public void run(String... args) throws Exception {
 		Person person = new Person(1000, "John", LocalDate.of(1985, 04, 11), new Address("Tel-Aviv", "Ben-Gurion", 11));
-		Child child = new Child(2000, "Moshe", LocalDate.of(2018, 7, 5), new Address("Ashkelon", "Bar-Kohba", 21), "Shalom");
-		Employee employee = new Employee(3000, "Sarah", LocalDate.of(1995, 11, 21), new Address("Rehovot", "Herzl", 7), "Motorolla", 20000);
-		
+		Child child = new Child(2000, "Moshe", LocalDate.of(2018, 7, 5), new Address("Ashkelon", "Bar-Kohba", 21),
+				"Shalom");
+		Employee employee = new Employee(3000, "Sarah", LocalDate.of(1995, 11, 21), new Address("Rehovot", "Herzl", 7),
+				"Motorolla", 20000);
+
 		personRepositoty.save(person);
 		personRepositoty.save(child);
 		personRepositoty.save(employee);
 	}
-	
+
+	@SuppressWarnings("unchecked")
 	private Class<? extends Person> getModelClass(PersonDto personDto) {
-		if(personDto instanceof EmployeeDto) {
-			return Employee.class;
+		String className = personDto.getClass().getName();
+		className = (className.substring(className.lastIndexOf(".") + 1));
+		className = (className.substring(0, className.length() - 3));
+
+		String path = "telran.java2022.person.model.";
+		Class<? extends Person> modelClass = null;
+
+		try {
+			modelClass = (Class<? extends Person>) Class.forName(path + className);
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		if(personDto instanceof ChildDto) {
-			return Child.class;
-		}
-		return Person.class;
+		return modelClass;
+
 	}
+
+	@SuppressWarnings("unchecked")
+	private Class<? extends PersonDto> getModelDto(Person person) {
+		String className = person.getClass().getName();
+		className = (className.substring(className.lastIndexOf(".") + 1)) + "Dto";
+
+		String path = "telran.java2022.person.dto.";
+		Class<? extends PersonDto> classDto = null;
+
+		try {
+			classDto = (Class<? extends PersonDto>) Class.forName(path + className);
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return classDto;
+	}
+
+//	private Class<? extends Person> getModelClass(PersonDto personDto) {
+//		if (personDto instanceof EmployeeDto) {
+//			return Employee.class;
+//		}
+//		if (personDto instanceof ChildDto) {
+//			return Child.class;
+//		}
+//		return Person.class;
+//	}
+
+//	private Class<? extends PersonDto> getModelDto(Person person) {
+//		String className = person.getClass().toString();
+//		className = (className.substring(className.lastIndexOf(".") + 1));
+//		if (className.equals("Employee")) {
+//			return EmployeeDto.class;
+//		}
+//		if (className.equals("Child")) {
+//			return ChildDto.class;
+//		}
+//		return PersonDto.class;
+//		
+//
+//	}
 
 //	@Override
 //	@Transactional(readOnly = true)

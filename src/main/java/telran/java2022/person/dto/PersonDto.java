@@ -2,13 +2,14 @@ package telran.java2022.person.dto;
 
 import java.time.LocalDate;
 
+
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
-
 import lombok.Getter;
+
 
 @Getter
 @JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "type")
