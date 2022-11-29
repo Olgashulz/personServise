@@ -102,14 +102,14 @@ public class PersonServiseImpl implements PersonService, CommandLineRunner {
 	@Override
 	@Transactional(readOnly = true)
 	public Iterable<PersonDto> findEmployeeBySalary(int min, int max) {
-		return personRepositoty.findEmployeeBySalary(min, max).map(p -> modelMapper.map(p, PersonDto.class))
+		return personRepositoty.findEmployeeBySalaryBetween(min, max).map(p -> modelMapper.map(p, PersonDto.class))
 				.collect(Collectors.toList());
 	}
-
+ 
 	@Override
 	@Transactional(readOnly = true)
 	public Iterable<PersonDto> getChildren() {
-		return personRepositoty.findChildren().map(p -> modelMapper.map(p, PersonDto.class))
+		return personRepositoty.findChildrenBy().map(p -> modelMapper.map(p, PersonDto.class))
 				.collect(Collectors.toList());
 	}
 
